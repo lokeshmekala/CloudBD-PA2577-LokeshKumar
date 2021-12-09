@@ -1,19 +1,32 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
-Vagrant.configure("2") do |config|
+
+# All Vagrant conf#iguration is done below. The "2" in Vagrant.configure
+# configures the #configuration version (we support older styles for
+# backwards comp#atibility). Please don't change it unless you know what
+# you're doing.#
+Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
+  # For a complete reference, p#lease see the online documentation at
+  # https://docs.vagrantup.com.#
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "bento/ubuntu-18.04"
+   config.vm.box = "bento/ubuntu-18.04"
+  config.vm.provision "shell", inline: <<-SHELL
+   sudo apt-get remove -y nodejs
+   sudo apt-get remove -y npm
+   sudo apt-get remove -y puppet-agent
+  wget https://apt.puppetlabs.com/puppet5-release-$(lsb_release -cs).deb
+   dpkg -i puppet5-release-$(lsb_release -cs).deb
+   apt-get -qq update
+   apt-get install -y puppet-agent
+SHELL
 
+  config.vm.provision "puppet" do |puppet|
+
+end
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
