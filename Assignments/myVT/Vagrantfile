@@ -6,7 +6,7 @@
 # configures the #configuration version (we support older styles for
 # backwards comp#atibility). Please don't change it unless you know what
 # you're doing.#
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   # The most common configuration options are documented and commented below.
   # For a complete reference, p#lease see the online documentation at
   # https://docs.vagrantup.com.#
@@ -14,24 +14,38 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
    config.vm.box = "bento/ubuntu-18.04"
-  config.vm.provision "shell", inline: <<-SHELL
-   sudo apt-get remove -y nodejs
-   sudo apt-get remove -y npm
-   sudo apt-get remove -y puppet-agent
-  wget https://apt.puppetlabs.com/puppet5-release-$(lsb_release -cs).deb
+   config.vm.provision "shell", inline: <<-SHELL
+   wget https://apt.puppetlabs.com/puppet5-release-$(lsb_release -cs).deb
    dpkg -i puppet5-release-$(lsb_release -cs).deb
    apt-get -qq update
    apt-get install -y puppet-agent
 SHELL
+   config.vm.define "web" do |web|
 
-  config.vm.provision "puppet" do |puppet|
+     config.vm.provision "puppet" do |puppet|
+       puppet.manifests_path = "./webmanifest/"
+       puppet.manifest_file = "default.pp"
+     end
+   end
 
-end
+   config.vm.define "db" do |db|
+     config.vm.provision "puppet" do |puppet|
+       puppet.manifests_path = "./dbmanifest/"
+       puppet.manifest_file = "default.pp"
+     end
+   end
+
+   config.vm.define "app" do |app|
+     config.vm.provision "puppet" do |puppet|
+       puppet.manifests_path = "./appmanifest/"
+       puppet.manifest_file = "default.pp"
+     end
+   end
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
   # config.vm.box_check_update = false
-
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
